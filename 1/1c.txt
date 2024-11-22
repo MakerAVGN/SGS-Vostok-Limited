@@ -1,0 +1,22 @@
+USE [SGS Vostok];
+
+DECLARE @ContainerID UNIQUEIDENTIFIER = '..........'; <- сюда вставляем ContainerID нужного нам элемента
+
+SELECT '[' +
+    STRING_AGG(
+        CONCAT(
+            '{',
+            '"ID":"', CAST(ID AS NVARCHAR(36)), '",',
+            '"ContainerID":"', CAST(ContainerID AS NVARCHAR(36)), '",',
+            '"StartDate":"', FORMAT(StartDate, 'yyyy-MM-ddTHH:mm:ss'), '",',
+            '"EndDate":"', FORMAT(EndDate, 'yyyy-MM-ddTHH:mm:ss'), '",',
+            '"OperationType":"', OperationType, '",',
+            '"OperatorName":"', OperatorName, '",',
+            '"InspectionPlace":"', InspectionPlace, '"',
+            '}'
+        ),
+        ','
+    )
++ ']' AS JSONResult
+FROM Operations
+WHERE ContainerID = @ContainerID;

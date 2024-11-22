@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Форма с зависимыми полями</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+
+      form {
+        max-width: 500px;
+        margin: 0 auto;
+      }
+
+      label,
+      select {
+        display: block;
+        margin-bottom: 10px;
+      }
+
+      button {
+        margin-top: 20px;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <form id="data-form">
+      <label for="city">Город</label>
+      <select id="city" name="city">
+        <option value="">Выберите город</option>
+      </select>
+
+      <label for="factory">Цех</label>
+      <select id="factory" name="factory">
+        <option value="">Выберите цех</option>
+      </select>
+
+      <label for="employee">Сотрудник</label>
+      <select id="employee" name="employee">
+        <option value="">Выберите сотрудника</option>
+      </select>
+
+      <label for="team">Бригада</label>
+      <select id="team" name="team">
+        <option value="1">Бригада 1</option>
+        <option value="2">Бригада 2</option>
+      </select>
+
+      <label for="shift">Смена</label>
+      <select id="shift" name="shift">
+        <option value="day">Дневная смена</option>
+        <option value="night">Ночная смена</option>
+      </select>
+
+      <button type="button" onclick="saveToCookie()">Сохранить</button>
+      <button type="button" onclick="loadFromCookie()">
+        Загрузить из Cookie
+      </button>
+    </form>
+
+    <script>
+      // Данные для выпадающих списков
+      const data = {
+        Москва: {
+          Цех1: ["Иванов", "Петров"],
+          Цех2: ["Сидоров", "Кузнецов"],
+        },
+        СанктПетербург: {
+          Цех3: ["Попов", "Смирнов"],
+          Цех4: ["Морозов", "Васильев"],
+        },
+      };
+
+      // Обновление зависимых списков
+      document.getElementById("city").addEventListener("change", function () {
+        const city = this.value;
+        const factorySelect = document.getElementById("factory");
+        const employeeSelect = document.getElementById("employee");
+
+        // Очистка полей
+        factorySelect.innerHTML = '<option value="">Выберите цех</option>';
+        employeeSelect.innerHTML =
+          '<option value="">Выберите сотрудника</option>';
+
+        if (city && data[city]) {
+          Object.keys(data[city]).forEach((factory) => {
+            const option = document.createElement("option");
+            option.value = factory;
+            option.textContent = factory;
+            factorySelect.appendChild(option);
+          });
+        }
+      });
+
+      document
+        .getElementById("factory")
+        .addEventListener("change", function () {
+          const city = document.getElementById("city").value;
+          const factory = this.value;
+          const employeeSelect = document.getElementById("employee");
+
+          // Очистка поля сотрудников
+          employeeSelect.innerHTML =
+            '<option value="">Выберите сотрудника</option>';
+
+          if (city && factory && data[city][factory]) {
+            data[city][factory].forEach((employee) => {
+              const option = document.createElement("option");
+              option.value = employee;
+              option.textContent = employee;
+              employeeSelect.appendChild(option);
+            });
+          }
+        });
+
+      // Сохранение данных в Cookie в формате JSON
+      function saveToCookie() {
+        const formData = {
+          city: document.getElementById("city").value,
+          factory: document.getElementById("factory").value,
+          employee: document.getElementById("employee").value,
+          team: document.getElementById("team").value,
+          shift: document.getElementById("shift").value,
+        };
+
+        document.cookie = `formData=${JSON.stringify(
+          formData
+        )};path=/;max-age=3600`;
+        alert("Данные сохранены в Cookie!");
+      }
+
+      // Получение куки по имени
+      function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(";").shift();
+      }
+
+      // Загрузка данных из Cookie
+      function loadFromCookie() {
+        const savedData = getCookie("formData");
+        if (savedData) {
+          const parsedData = JSON.parse(savedData);
+          console.log("Извлеченные данные:", parsedData);
+
+          document.getElementById("city").value = parsedData.city;
+          document.getElementById("city").dispatchEvent(new Event("change"));
+
+          setTimeout(() => {
+            document.getElementById("factory").value = parsedData.factory;
+            document
+              .getElementById("factory")
+              .dispatchEvent(new Event("change"));
+
+            setTimeout(() => {
+              document.getElementById("employee").value = parsedData.employee;
+              document.getElementById("team").value = parsedData.team;
+              document.getElementById("shift").value = parsedData.shift;
+            }, 300);
+          }, 300);
+        } else {
+          alert("Данные в Cookie отсутствуют!");
+        }
+      }
+
+      // Инициализация списка городов
+      const citySelect = document.getElementById("city");
+      Object.keys(data).forEach((city) => {
+        const option = document.createElement("option");
+        option.value = city;
+        option.textContent = city;
+        citySelect.appendChild(option);
+      });
+    </script>
+  </body>
+</html>

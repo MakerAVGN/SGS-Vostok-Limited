@@ -1,0 +1,21 @@
+USE [SGS Vostok];
+
+SELECT '[' +
+    STRING_AGG(
+        CONCAT(
+            '{',
+            '"ID":"', CAST(ID AS NVARCHAR(36)), '",',
+            '"Number":', Number, ',',
+            '"Type":"', Type, '",',
+            '"Length":', Length, ',',
+            '"Width":', Width, ',',
+            '"Height":', Height, ',',
+            '"Weight":', Weight, ',',
+            '"IsEmpty":', CASE WHEN IsEmpty = 1 THEN 'true' ELSE 'false' END, ',',
+            '"DateReceived":"', FORMAT(DateReceived, 'yyyy-MM-ddTHH:mm:ss'), '"',
+            '}'
+        ),
+        ','
+    )
++ ']' AS JSONResult
+FROM Containers;

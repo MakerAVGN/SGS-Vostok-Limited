@@ -1,0 +1,41 @@
+
+CREATE DATABASE [SGS Vostok];
+
+
+USE [SGS Vostok];
+
+
+CREATE TABLE Containers (
+    ID UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(), 
+    Number INT NOT NULL,                             
+    Type NVARCHAR(50) NOT NULL,                     
+    Length INT NOT NULL,                             
+    Width INT NOT NULL,                              
+    Height INT NOT NULL,                             
+    Weight INT NOT NULL,                             
+    IsEmpty BIT NOT NULL,                            
+    DateReceived DATETIME NOT NULL                  
+);
+
+
+CREATE TABLE Operations (
+    ID UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(), 
+    ContainerID UNIQUEIDENTIFIER NOT NULL,           
+    StartDate DATETIME NOT NULL,                     
+    EndDate DATETIME NOT NULL,                       
+    OperationType NVARCHAR(50) NOT NULL,             
+    OperatorName NVARCHAR(100) NOT NULL,             
+    InspectionPlace NVARCHAR(100) NOT NULL,          
+    CONSTRAINT FK_Operations_Containers FOREIGN KEY (ContainerID) REFERENCES Containers(ID) 
+);
+
+
+
+DECLARE @ContainerID UNIQUEIDENTIFIER = NEWID();
+
+
+INSERT INTO Containers (ID, Number, Type, Length, Width, Height, Weight, IsEmpty, DateReceived)
+VALUES (@ContainerID, 101, '20ft', 6000, 2500, 2500, 2000, 1, GETDATE());
+
+INSERT INTO Operations (ID, ContainerID, StartDate, EndDate, OperationType, OperatorName, InspectionPlace)
+VALUES (NEWID(), @ContainerID, GETDATE(), DATEADD(HOUR, 2, GETDATE()), 'Loading', 'Иван Иванов', 'Склад 1');
